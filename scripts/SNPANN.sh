@@ -2,6 +2,9 @@
 
 set -eu
 
+module load sun-java/jdk1.8.0_60
+
+
 # Check for an optional timeout threshold in seconds. If the duration of the
 # model run as executed below, takes longer that this threshhold
 # then the run will be aborted. Note that the "timeout" command
@@ -29,6 +32,8 @@ fi
 # param_line is the string containing the model parameters for a run.
 param_line=$1
 
+outfile=$(basename $(dirname $param_line))".vcf"
+
 # Set emews_root to the root directory of the project (i.e. the directory
 # that contains the scripts, swift, etc. directories and files)
 emews_root=$2
@@ -40,11 +45,12 @@ cd $instance_directory
 
 # TODO: Define the command to run the model. For example,
 # MODEL_CMD="python"
-MODEL_CMD=""
+#MODEL_CMD="java  -Xmx4g -jar /soft/snpeff/4.3/snpEff/snpEff.jar -c /soft/snpeff/4.3/snpEff/snpEff.config -v GRCh37.75 "
+MODEL_CMD="java" 
 # TODO: Define the arguments to the MODEL_CMD. Each rguments should be
 # surrounded by quotes and separated by spaces. For example,
 # arg_array=("$emews_root/python/nt3_tc1_runner.py" "$parameter_string")
-arg_array=("arg1" "arg2" "arg3")
+arg_array=("-Xmx8g" "-jar /soft/snpeff/4.3/snpEff/snpEff.jar" "-c /soft/snpeff/4.3/snpEff/snpEff.config" "-v GRCh37.75"  "$param_line")
 COMMAND="$MODEL_CMD ${arg_array[@]}"
 
 # Turn bash error checking off. This is
@@ -53,7 +59,7 @@ COMMAND="$MODEL_CMD ${arg_array[@]}"
 set +e
 echo "Running $COMMAND"
 
-$TIMEOUT_CMD $COMMAND
+$TIMEOUT_CMD $COMMAND  >$outfile
 # $? is the exit status of the most recently executed command (i.e the
 # line above)
 RES=$?

@@ -36,3 +36,21 @@ The directories are intended to contain the following:
 
 Use the subtemplates to customize this structure for particular types of
 workflows. These are: sweep, eqpy, and eqr.
+
+Usage
+SWIFT_T=/soft/swift-t/compute/SAVI-2018-01-31
+PATH=$SWIFT_T/stc/bin:$PATH
+PATH=$SWIFT_T/turbine/bin:$PATH
+run as
+/lustre/beagle2/lpesce/Megan/StructuralVariants/Annotation/EMEWS/SNPEFF/swift/swift_run_sweep.sh test
+
+to rerun brone ones:
+#find the ones that ran and are not empty, count first
+find $(cat turbine-directory.txt )  -name \*.vcf -and -not -empty | wc
+find $(cat turbine-directory.txt )  -name \*.vcf -and -not -empty >tmp
+#find their corresponding input files, move tmp to input directory "data"
+for file in $(cat tmp); do grep $(basename $file | sed 's/\.vcf//') input.txt    ; done  >tmp1
+#because of non unique naming there are some files that are picked off twice, we need to eliminate those
+sort tmp1 | uniq >tmp2
+#fine the ones that did not run
+diff -u <(sort tmp2) <(sort input.txt) | grep -E "^\+"
